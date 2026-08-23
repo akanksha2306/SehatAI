@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+/*
+ * Tailwind v4 only generates utility classes (bg-accent, text-text, etc.)
+ * for colors registered here via --color-*. The plain :root variables below
+ * are NOT enough on their own — that was the actual bug: every bg-accent /
+ * text-text / border-neutral-300 / bg-bg class in the app was silently
+ * producing no CSS at all, because nothing told Tailwind these names exist.
+ * Mapping to var(--token) (not a fixed value) keeps the dark-mode
+ * override below working, since the indirection re-resolves at paint time.
+ */
+@theme {
+  --color-text: var(--text);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-accent-2: var(--accent-2);
+  --color-accent-2-light: var(--accent-2-light);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-900: var(--neutral-900);
+}
+
+:root {
+  --text: #201e1d;
+  --bg: #f5ead8;
+  --surface: #ebddc5;
+  --accent: #c67139;
+  --accent-light: #ffe1d0;
+  --accent-2: #7a8a5e;
+  --accent-2-light: #f0fae1;
+  --neutral-300: #dcd3c4;
+  --neutral-500: #a19786;
+  --neutral-900: #2e2b25;
+  --code-bg: #f4f3ec;
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --sans: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Caprasimo', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #d4ccc4;
+    --bg: #3a3430;
+    --surface: #4a4238;
+    --accent: #e8a477;
+    --accent-light: #6b5234;
+    --accent-2: #a8b896;
+    --accent-2-light: #4d5a3f;
+    --neutral-300: #5a514a;
+    --neutral-500: #7a6f65;
+    --neutral-900: #e8e0d8;
+    --code-bg: #1f2028;
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  }
+
+  #social .button-icon {
+    filter: invert(1) brightness(2);
+  }
+}
+
+#root {
+  width: 1126px;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  border-inline: 1px solid var(--border);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 700;
+  color: var(--text);
+}
+
+h1 {
+  font-size: 56px;
+  letter-spacing: -1.68px;
+  margin: 32px 0;
+  @media (max-width: 1024px) {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+}
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+p {
+  margin: 0;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}
