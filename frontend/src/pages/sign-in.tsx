@@ -9,13 +9,9 @@ const LEFT_COPY = {
   body: "SehatAI coaches clinicians to use AI safely, confidently, and on the job — built around real tasks, not abstract theory.",
 };
 
-// TEMPORARY testing convenience — pre-fills the sign-in email so it doesn't
-// need retyping on every test. Remove this line before shipping.
-const DEV_PREFILLED_EMAIL = "kanjoliaakanksha@gmail.com";
-
 export function SignIn(): React.ReactElement {
   const navigate = useNavigate();
-  const [email, setEmail] = useState(DEV_PREFILLED_EMAIL);
+  const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +74,7 @@ export function SignIn(): React.ReactElement {
             <button
               onClick={() => {
                 setIsSubmitted(false);
-                setEmail(DEV_PREFILLED_EMAIL);
+                setEmail("");
                 setError(null);
               }}
               className="w-full px-6 py-3 rounded-full font-medium text-base bg-accent text-white hover:opacity-90 transition-opacity"
