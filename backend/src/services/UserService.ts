@@ -9,6 +9,8 @@ export interface UserData {
 export interface UserStatsData {
   creditsTotal: number;
   currentStreak: number;
+  longestStreak: number;
+  lastActiveDate: Date | null;
 }
 
 export class UserService {
@@ -71,12 +73,16 @@ export class UserService {
       select: {
         creditsTotal: true,
         currentStreak: true,
+        longestStreak: true,
+        lastActiveDate: true,
       },
     });
 
     return {
       creditsTotal: stats?.creditsTotal ?? 0,
       currentStreak: stats?.currentStreak ?? 0,
+      longestStreak: stats?.longestStreak ?? 0,
+      lastActiveDate: stats?.lastActiveDate ?? null,
     };
   }
 }

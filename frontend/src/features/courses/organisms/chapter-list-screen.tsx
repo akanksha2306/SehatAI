@@ -4,6 +4,7 @@ import { apiClient } from '../../../lib/api-client';
 import { ChapterCard } from '../atoms/chapter-card';
 import { ProgressBar } from '../molecules/progress-bar';
 import { PromptBankCard } from '../molecules/prompt-bank-card';
+import { DoctorHeroAnimation } from '../molecules/doctor-hero-animation';
 import { PromptImprover } from './prompt-improver';
 import type { CourseTrack } from '../types';
 
@@ -55,6 +56,13 @@ export function ChapterListScreen({
         </h1>
         <p className="text-lg text-neutral-500 max-w-2xl">{trackDescription}</p>
       </section>
+
+      {/* Hall of Hallucinations Hero Animation */}
+      {track === 'hall' && (
+        <section className="py-4">
+          <DoctorHeroAnimation />
+        </section>
+      )}
 
       {/* Progress */}
       <section>

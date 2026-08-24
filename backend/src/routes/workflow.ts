@@ -2,21 +2,28 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { WorkflowController } from '../controllers/WorkflowController.js';
 import { WorkflowService } from '../services/WorkflowService.js';
+import { UsageLogService } from '../services/UsageLogService.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { validate } from '../middleware/validate.js';
+import { createUserRateLimiter } from '../middleware/rateLimit.js';
 import { generateWorkflowSchema, saveWorkflowSchema } from '../schemas/workflow.js';
 
 const router = Router();
 const prisma = new PrismaClient();
 
 const workflowService = new WorkflowService(prisma);
-const workflowController = new WorkflowController(workflowService);
+const usageLogService = new UsageLogService(prisma);
+const workflowController = new WorkflowController(workflowService, usageLogService);
+
+// Rate limiter for AI endpoints: 10 requests per minute per authenticated user
+const aiRateLimiter = createUserRateLimiter(60 * 1000, 10);
 
 // Generate a workflow (mocked or real based on API key)
 router.post(
   '/workflow/generate',
   authenticate,
+  aiRateLimiter,
   validate(generateWorkflowSchema, 'body'),
   asyncHandler((req, res) => workflowController.generateWorkflow(req, res))
 );

@@ -43,3 +43,10 @@ export class ForbiddenError extends AppError {
     Object.setPrototypeOf(this, ForbiddenError.prototype);
   }
 }
+
+export class RateLimitError extends AppError {
+  constructor(message: string = 'Too many requests') {
+    super(message, 429, 'RATE_LIMIT_EXCEEDED');
+    Object.setPrototypeOf(this, RateLimitError.prototype);
+  }
+}

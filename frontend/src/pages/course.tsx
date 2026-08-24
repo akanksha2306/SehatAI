@@ -7,11 +7,12 @@ import { ChapterListScreen } from '../features/courses/organisms/chapter-list-sc
 import { ChapterReaderScreen } from '../features/courses/organisms/chapter-reader-screen';
 import { QuizScreen } from '../features/courses/organisms/quiz-screen';
 import { RewardScreen } from '../features/courses/organisms/reward-screen';
+import { DoctorIntroCard } from '../features/courses/molecules/doctor-intro-card';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../lib/api-client';
 import type { CourseTrack } from '../features/courses/types';
 
-type Screen = 'list' | 'reader' | 'quiz' | 'reward';
+type Screen = 'list' | 'reader' | 'quiz-intro' | 'quiz' | 'reward';
 
 export function Course(): React.ReactElement {
   const { track: trackParam } = useParams<{ track: string }>();
@@ -45,6 +46,12 @@ export function Course(): React.ReactElement {
       setTotalQuestions(chapterDetail.quiz.length);
       setChapterReward(chapterDetail.reward);
     }
+    // For hall track, show doctor intro first; for prompt track, go straight to quiz
+    const nextScreen = track === 'hall' ? 'quiz-intro' : 'quiz';
+    setScreen(nextScreen);
+  };
+
+  const handleProceedToQuiz = (): void => {
     setScreen('quiz');
   };
 
@@ -110,6 +117,10 @@ export function Course(): React.ReactElement {
               onStartQuiz={handleStartQuiz}
               onBack={() => setScreen('list')}
             />
+          )}
+
+          {screen === 'quiz-intro' && currentChapterIndex !== null && (
+            <DoctorIntroCard onStartQuiz={handleProceedToQuiz} />
           )}
 
           {screen === 'quiz' && currentChapterIndex !== null && (

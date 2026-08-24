@@ -30,6 +30,8 @@ export interface ChapterProgressData {
 export interface UserStatsData {
   creditsTotal: number;
   currentStreak: number;
+  longestStreak: number;
+  lastActiveDate: Date | null;
 }
 
 // TEMPORARY demo scope limit — see Deferred.md. All 17 chapters (7 prompt +
@@ -38,8 +40,87 @@ export interface UserStatsData {
 // Remove this constant (and its two other usages below) to restore full access.
 const DEMO_CHAPTER_LIMIT = 2;
 
+interface StreakUpdate {
+  currentStreak: number;
+  longestStreak: number;
+  lastActiveDate: Date;
+}
+
 export class CourseService {
   constructor(private prisma: PrismaClient) {}
+
+  /**
+   * Calculate streak updates based on the user's current streak state and today's date.
+   * Uses UTC calendar dates (no time-of-day component).
+   *
+   * Logic:
+   * - No UserStats or lastActiveDate is null: first-ever activity
+   *   → currentStreak = 1, longestStreak = 1, lastActiveDate = today
+   * - lastActiveDate === today: already active today
+   *   → keep currentStreak unchanged, ensure longestStreak = max(longestStreak, currentStreak)
+   * - lastActiveDate === yesterday: consecutive day
+   *   → currentStreak += 1, longestStreak = max(longestStreak, currentStreak)
+   * - lastActiveDate earlier than yesterday: streak broken
+   *   → currentStreak = 1, longestStreak unchanged
+   */
+  private calculateStreakUpdate(
+    currentStreak: number,
+    longestStreak: number,
+    lastActiveDate: Date | null
+  ): StreakUpdate {
+    // Get today's UTC date (strip time-of-day)
+    const today = new Date();
+    const todayUTC = new Date(
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+    );
+
+    // No prior activity
+    if (!lastActiveDate) {
+      return {
+        currentStreak: 1,
+        longestStreak: 1,
+        lastActiveDate: todayUTC,
+      };
+    }
+
+    // Normalize lastActiveDate to UTC date (strip time-of-day)
+    const lastActiveDateUTC = new Date(
+      Date.UTC(
+        lastActiveDate.getUTCFullYear(),
+        lastActiveDate.getUTCMonth(),
+        lastActiveDate.getUTCDate()
+      )
+    );
+
+    // Calculate days difference
+    const diffMs = todayUTC.getTime() - lastActiveDateUTC.getTime();
+    const daysDiff = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (daysDiff === 0) {
+      // Already active today — don't double-increment currentStreak,
+      // but ensure longestStreak is up-to-date
+      return {
+        currentStreak,
+        longestStreak: Math.max(longestStreak, currentStreak),
+        lastActiveDate: todayUTC,
+      };
+    } else if (daysDiff === 1) {
+      // Consecutive day — increment currentStreak
+      const newStreak = currentStreak + 1;
+      return {
+        currentStreak: newStreak,
+        longestStreak: Math.max(longestStreak, newStreak),
+        lastActiveDate: todayUTC,
+      };
+    } else {
+      // Gap of 2+ days — streak broken, reset to 1
+      return {
+        currentStreak: 1,
+        longestStreak,
+        lastActiveDate: todayUTC,
+      };
+    }
+  }
 
   async getChaptersForTrack(
     userId: string,
@@ -207,30 +288,62 @@ export class CourseService {
         },
       });
 
+      // Get current UserStats to calculate streak and credits
+      const currentStats = await tx.userStats.findUnique({
+        where: { userId },
+      });
+
+      // Calculate streak updates (applies on EVERY chapter completion,
+      // including repeats, since revisiting counts as activity today)
+      const streakUpdate = this.calculateStreakUpdate(
+        currentStats?.currentStreak ?? 0,
+        currentStats?.longestStreak ?? 0,
+        currentStats?.lastActiveDate ?? null
+      );
+
       // Only add credits if this is the first completion
       let creditsTotal = 0;
       if (!wasAlreadyCompleted) {
-        // Get or create UserStats
+        // Upsert UserStats with both credit increment and streak update
         const stats = await tx.userStats.upsert({
           where: { userId },
           update: {
             creditsTotal: {
               increment: chapter.reward,
             },
+            currentStreak: streakUpdate.currentStreak,
+            longestStreak: streakUpdate.longestStreak,
+            lastActiveDate: streakUpdate.lastActiveDate,
           },
           create: {
             userId,
             creditsTotal: chapter.reward,
+            currentStreak: streakUpdate.currentStreak,
+            longestStreak: streakUpdate.longestStreak,
+            lastActiveDate: streakUpdate.lastActiveDate,
           },
         });
 
         creditsTotal = stats.creditsTotal;
       } else {
-        // Already completed, just get current total
-        const stats = await tx.userStats.findUnique({
+        // Already completed, update streak (even on retake) but don't add credits
+        const stats = await tx.userStats.upsert({
           where: { userId },
+          update: {
+            currentStreak: streakUpdate.currentStreak,
+            longestStreak: streakUpdate.longestStreak,
+            lastActiveDate: streakUpdate.lastActiveDate,
+          },
+          create: {
+            userId,
+            creditsTotal: 0,
+            currentStreak: streakUpdate.currentStreak,
+            longestStreak: streakUpdate.longestStreak,
+            lastActiveDate: streakUpdate.lastActiveDate,
+          },
         });
-        creditsTotal = stats?.creditsTotal ?? 0;
+
+        creditsTotal = stats.creditsTotal;
       }
 
       return {
@@ -248,6 +361,8 @@ export class CourseService {
       select: {
         creditsTotal: true,
         currentStreak: true,
+        longestStreak: true,
+        lastActiveDate: true,
       },
     });
 
@@ -255,6 +370,8 @@ export class CourseService {
     return {
       creditsTotal: stats?.creditsTotal ?? 0,
       currentStreak: stats?.currentStreak ?? 0,
+      longestStreak: stats?.longestStreak ?? 0,
+      lastActiveDate: stats?.lastActiveDate ?? null,
     };
   }
 }

@@ -21,6 +21,7 @@ model User {
   chapterProgress   ChapterProgress[]
   stats             UserStats?
   savedWorkflows    SavedWorkflow[]
+  usageLogs         UsageLog[]
 }
 
 model MagicLinkToken {
@@ -96,6 +97,15 @@ model SavedWorkflow {
   description String?
   output      String   // the full generated workflow text
   createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UsageLog {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   // e.g., 'prompt.improve', 'scribe.translate', 'workflow.generate'
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
