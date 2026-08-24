@@ -37,8 +37,12 @@ export interface UserStatsData {
 // TEMPORARY demo scope limit — see Deferred.md. All 17 chapters (7 prompt +
 // 10 hall) still exist untouched in the database; this just caps what's
 // exposed/allowed via the API to the first N per track for the demo.
-// Remove this constant (and its two other usages below) to restore full access.
-const DEMO_CHAPTER_LIMIT = 2;
+// Hall of Hallucinations is fully unlocked (all 10); Prompt Lab stays capped
+// at 2 until asked to unlock it too. Remove this function (and its 3 call
+// sites below) to restore full, uncapped access for every track.
+function getChapterLimit(track: string): number {
+  return track === 'hall' ? 10 : 2;
+}
 
 interface StreakUpdate {
   currentStreak: number;
@@ -126,9 +130,9 @@ export class CourseService {
     userId: string,
     track: string
   ): Promise<ChapterListItem[]> {
-    // Get all chapters for this track (capped to DEMO_CHAPTER_LIMIT — see note above)
+    // Get all chapters for this track (capped per-track — see getChapterLimit above)
     const chapters = await this.prisma.chapter.findMany({
-      where: { track, index: { lt: DEMO_CHAPTER_LIMIT } },
+      where: { track, index: { lt: getChapterLimit(track) } },
       orderBy: { index: 'asc' },
       select: {
         index: true,
@@ -165,8 +169,8 @@ export class CourseService {
     track: string,
     index: number
   ): Promise<ChapterDetail> {
-    // Demo scope limit — see DEMO_CHAPTER_LIMIT note above.
-    if (index >= DEMO_CHAPTER_LIMIT) {
+    // Demo scope limit — see getChapterLimit note above.
+    if (index >= getChapterLimit(track)) {
       throw new NotFoundError('Chapter');
     }
 
@@ -215,8 +219,8 @@ export class CourseService {
     index: number,
     quizScore: number
   ): Promise<{ progress: ChapterProgressData; creditsTotal: number }> {
-    // Demo scope limit — see DEMO_CHAPTER_LIMIT note above.
-    if (index >= DEMO_CHAPTER_LIMIT) {
+    // Demo scope limit — see getChapterLimit note above.
+    if (index >= getChapterLimit(track)) {
       throw new NotFoundError('Chapter');
     }
 

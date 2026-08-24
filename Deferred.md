@@ -5,7 +5,8 @@
 - [ ] **Pre-filled sign-in email** — `sign-in.tsx`'s `DEV_PREFILLED_EMAIL` constant. Lower risk than the bypass above, but should go too.
 
 ## Content scope (deliberately shrunk for the demo)
-- [ ] **Restore full chapter count.** Both tracks are capped to 2 chapters each for demo purposes via `DEMO_CHAPTER_LIMIT = 2` in `backend/src/services/CourseService.ts`. All 17 chapters (7 Prompt Lab + 10 Hall of Hallucinations) still exist untouched in the database — nothing was deleted. To restore full access, delete the `DEMO_CHAPTER_LIMIT` constant and its 3 usages in that file.
+- [x] ~~Hall of Hallucinations capped to 2 chapters~~ — resolved 2026-08-24, now unlocked to all 10.
+- [ ] **Prompt Lab still capped to 2 of its 7 chapters.** Governed by `getChapterLimit()` in `backend/src/services/CourseService.ts` (Hall returns 10, Prompt Lab returns 2). All 7 Prompt Lab chapters still exist untouched in the database — nothing was deleted. To unlock, change what `getChapterLimit()` returns for the `prompt` track (or remove the function and its 3 call sites entirely to uncap both tracks).
 
 ## Cosmetic / non-blocking
 Small/cosmetic items and non-blocking fixes, parked so they don't derail focus on major features. Revisit after the core feature set is built.

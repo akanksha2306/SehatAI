@@ -109,7 +109,11 @@ export class ApiClient {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = API_URL || "http://localhost:4000";
+    // Nullish coalescing, not ||: an explicitly empty VITE_API_URL means
+    // "same-origin, use relative /api/... paths" (the single-Docker-service
+    // deploy sets it to "" on purpose) — only fall back to localhost when
+    // the var isn't set at all (local dev with no .env).
+    this.baseUrl = API_URL ?? "http://localhost:4000";
   }
 
   private async fetch<T>(

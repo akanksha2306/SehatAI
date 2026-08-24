@@ -59,7 +59,7 @@ export function ChapterListScreen({
 
       {/* Hall of Hallucinations Hero Animation */}
       {track === 'hall' && (
-        <section className="py-4">
+        <section>
           <DoctorHeroAnimation />
         </section>
       )}
