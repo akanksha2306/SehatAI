@@ -17,7 +17,11 @@ ENV VITE_API_URL=""
 RUN npm run build
 
 # ---- Stage 2: build the backend ----
-FROM node:20-alpine AS backend-build
+# Debian-based (not Alpine) — Prisma's engine binaries need a real OpenSSL
+# that's straightforward to install; Alpine's musl libc causes exactly the
+# "failed to detect libssl" / garbled JSON error Prisma throws otherwise.
+FROM node:20-slim AS backend-build
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app/backend
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma
@@ -26,7 +30,11 @@ COPY backend/ ./
 RUN npm run build
 
 # ---- Stage 3: runtime image ----
-FROM node:20-alpine
+# Same Debian-based image as the backend build, for the same OpenSSL reason —
+# `prisma migrate deploy` runs at container start (see CMD below) and needs
+# it too, not just at build time.
+FROM node:20-slim
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 # Full node_modules (not pruned to production-only) so the `prisma` CLI is
 # still available at runtime for the migrate-on-start step below.
