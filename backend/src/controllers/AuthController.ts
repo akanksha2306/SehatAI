@@ -14,12 +14,16 @@ export interface AuthenticatedRequest extends Request {
 
 /**
  * 🚨 TEMPORARY DEV-ONLY AUTH BYPASS — REMOVE BEFORE SHIPPING 🚨
- * Exact-match only, one hardcoded email, so Akanksha can test without the
- * email round-trip. Never widen this (no domain match, no env toggle that
- * could be true in prod by accident) — it skips real verification entirely
- * for this one address. Tracked in Deferred.md under "must remove before launch".
+ * Exact-match only, a fixed list of hardcoded emails, so Akanksha and a
+ * small set of testers can get in without a verified Resend sending domain.
+ * Never widen this (no domain match, no env toggle that could be true in
+ * prod by accident) — it skips real verification entirely for these exact
+ * addresses. Tracked in Deferred.md under "must remove before launch".
  */
-const DEV_BYPASS_EMAIL = 'kanjoliaakanksha@gmail.com';
+const DEV_BYPASS_EMAILS = new Set([
+  'kanjoliaakanksha@gmail.com',
+  'akankshakanjolia@gmail.com',
+]);
 
 export class AuthController {
   constructor(
@@ -34,10 +38,10 @@ export class AuthController {
     // Find or create user
     const user = await this.userService.findOrCreateByEmail(email);
 
-    // 🚨 DEV-ONLY BYPASS — see DEV_BYPASS_EMAIL comment above. Skips the
-    // email round-trip entirely for one exact, hardcoded address by issuing
-    // a real session token directly in this response.
-    if (email === DEV_BYPASS_EMAIL) {
+    // 🚨 DEV-ONLY BYPASS — see DEV_BYPASS_EMAILS comment above. Skips the
+    // email round-trip entirely for a fixed list of exact addresses by
+    // issuing a real session token directly in this response.
+    if (DEV_BYPASS_EMAILS.has(email)) {
       const jwtToken = signJWT({ userId: user.id });
       res.status(200).json({
         message: 'Dev bypass active for this email — signing in directly.',
