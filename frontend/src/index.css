@@ -21,23 +21,26 @@
 }
 
 /*
- * Dark theme only, permanently — no light mode, no toggle, no
- * prefers-color-scheme check. These were the dark-mode values;
- * they're now the only values.
+ * Whole-app blue/mint theme, permanently — no light mode, no
+ * toggle. Anchor colors are the product owner's exact hexes
+ * (--surface, --accent). Other tokens are derived so cards,
+ * badges, and borders still separate cleanly from the page
+ * background instead of collapsing into one flat blue, the same
+ * lesson learned from the earlier brown dark-mode contrast fix.
  */
 :root {
-  --text: #d4ccc4;
-  --bg: #2a2521;
-  --surface: #4d453c;
-  --accent: #f0a878;
-  --accent-light: #8a5a34;
-  --accent-2: #b4c4a2;
-  --accent-2-light: #5f6f4c;
-  --neutral-300: #6b6158;
-  --neutral-500: #96897c;
-  --neutral-900: #e8e0d8;
-  --code-bg: #1f2028;
-  --social-bg: rgba(47, 48, 58, 0.5);
+  --text: #ffffff;
+  --bg: #0a4a85;
+  --surface: #106ebe;
+  --accent: #0ffcbe;
+  --accent-light: #0c5d8f;
+  --accent-2: #5ac8fa;
+  --accent-2-light: #0c4a73;
+  --neutral-300: #3a8ac9;
+  --neutral-500: #9cc4e8;
+  --neutral-900: #eaf4ff;
+  --code-bg: #072e52;
+  --social-bg: rgba(255, 255, 255, 0.08);
   --shadow:
     rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 
