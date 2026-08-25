@@ -3,8 +3,9 @@ import { UserService } from '../services/UserService.js';
 import { MagicLinkService } from '../services/MagicLinkService.js';
 import { EmailService } from '../services/EmailService.js';
 import { signJWT } from '../lib/jwt.js';
+import { UnauthorizedError } from '../lib/errors.js';
 import config from '../lib/config.js';
-import type { MagicLinkRequest, MagicLinkVerify } from '../schemas/auth.js';
+import type { MagicLinkRequest, MagicLinkVerify, VerifyCodeRequest } from '../schemas/auth.js';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -51,15 +52,12 @@ export class AuthController {
       return;
     }
 
-    // Generate magic link token
-    const rawToken = await this.magicLinkService.createToken(user.id);
+    // Generate 6-digit verification code
+    const verificationCode = await this.magicLinkService.createToken(user.id);
 
-    // Build the magic link URL
-    const magicLink = `${config.APP_URL}/auth/verify?token=${rawToken}`;
-
-    // Send magic link via email (Resend)
+    // Send verification code via email
     // Errors are logged server-side but not thrown to client
-    await this.emailService.sendMagicLink(email, magicLink);
+    await this.emailService.sendMagicLink(email, verificationCode);
 
     // Always respond with generic success message to avoid email enumeration
     res.status(200).json({
@@ -79,6 +77,34 @@ export class AuthController {
     const user = await this.userService.findById(userId);
     if (!user) {
       throw new Error('User not found after token verification');
+    }
+
+    // Issue JWT
+    const jwtToken = signJWT({ userId: user.id });
+
+    res.status(200).json({
+      token: jwtToken,
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+    });
+  }
+
+  async verifyCode(req: Request<{}, {}, VerifyCodeRequest>, res: Response): Promise<void> {
+    const { email, code } = req.body;
+
+    // Verify the code and get userId
+    const userId = await this.magicLinkService.verifyToken(code);
+
+    // Get user details and verify email matches
+    const user = await this.userService.findById(userId);
+    if (!user) {
+      throw new Error('User not found after code verification');
+    }
+
+    if (user.email !== email) {
+      throw new UnauthorizedError('Email does not match the provided code');
     }
 
     // Issue JWT

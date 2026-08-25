@@ -9,7 +9,7 @@ export class EmailService {
     this.brevoSenderEmail = config.BREVO_SENDER_EMAIL;
   }
 
-  async sendMagicLink(email: string, magicLink: string): Promise<void> {
+  async sendMagicLink(email: string, verificationCode: string): Promise<void> {
     try {
       const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
@@ -23,27 +23,27 @@ export class EmailService {
             email: this.brevoSenderEmail,
           },
           to: [{ email }],
-          subject: 'Your SehatAI sign-in link',
-          htmlContent: this.getMagicLinkEmailTemplate(magicLink),
+          subject: 'Your SehatAI verification code',
+          htmlContent: this.getVerificationCodeEmailTemplate(verificationCode),
         }),
       });
 
       if (response.ok) {
         const data = (await response.json()) as { messageId: string };
-        console.log(`[magic-link] email sent to ${email} via Brevo (id: ${data.messageId})`);
+        console.log(`[verification-code] email sent to ${email} via Brevo (id: ${data.messageId})`);
       } else {
         const errorData = (await response.json()) as { message?: string };
-        console.error(`[magic-link] Brevo API error for ${email}: ${response.status} ${errorData.message || ''}`);
+        console.error(`[verification-code] Brevo API error for ${email}: ${response.status} ${errorData.message || ''}`);
       }
     } catch (error) {
       // Log the error server-side but don't throw
       // This ensures we don't leak email delivery status to the client
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`[magic-link] failed to send email to ${email}: ${errorMessage}`);
+      console.error(`[verification-code] failed to send email to ${email}: ${errorMessage}`);
     }
   }
 
-  private getMagicLinkEmailTemplate(magicLink: string): string {
+  private getVerificationCodeEmailTemplate(verificationCode: string): string {
     return `
 <!DOCTYPE html>
 <html>
@@ -72,30 +72,25 @@ export class EmailService {
         margin-bottom: 24px;
         font-size: 16px;
       }
-      .link-section {
+      .code-section {
         margin: 24px 0;
-        padding: 16px;
+        padding: 24px;
         background-color: #f5f5f5;
         border-radius: 4px;
+        text-align: center;
       }
-      .magic-link {
-        display: inline-block;
-        padding: 12px 24px;
-        background-color: #007bff;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
+      .verification-code {
+        font-size: 32px;
         font-weight: bold;
-        margin: 12px 0;
+        letter-spacing: 8px;
+        color: #000;
+        font-family: 'Courier New', monospace;
+        margin: 16px 0;
       }
-      .magic-link:hover {
-        background-color: #0056b3;
-      }
-      .link-text {
-        word-break: break-all;
-        color: #666;
+      .code-label {
         font-size: 14px;
-        margin-top: 12px;
+        color: #666;
+        margin-bottom: 8px;
       }
       .footer {
         font-size: 12px;
@@ -110,15 +105,14 @@ export class EmailService {
     <div class="container">
       <div class="header">Welcome to SehatAI</div>
       <div class="content">
-        Click the link below to sign in to your account. This link expires in 15 minutes.
+        Enter this code to sign in to your account. This code expires in 15 minutes.
       </div>
-      <div class="link-section">
-        <a href="${magicLink}" class="magic-link">Sign In to SehatAI</a>
-        <div class="link-text">Or copy and paste this link in your browser:</div>
-        <div class="link-text">${magicLink}</div>
+      <div class="code-section">
+        <div class="code-label">Your verification code:</div>
+        <div class="verification-code">${verificationCode}</div>
       </div>
       <div class="footer">
-        <p>This link is valid for 15 minutes. If you did not request this email, you can safely ignore it.</p>
+        <p>This code is valid for 15 minutes. If you did not request this email, you can safely ignore it.</p>
       </div>
     </div>
   </body>

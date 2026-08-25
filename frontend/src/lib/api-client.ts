@@ -157,6 +157,13 @@ export class ApiClient {
     });
   }
 
+  async verifyCode(email: string, code: string): Promise<VerifyResponse> {
+    return this.fetch<VerifyResponse>("/api/auth/verify-code", {
+      method: "POST",
+      body: JSON.stringify({ email, code }),
+    });
+  }
+
   async verifyToken(token: string): Promise<VerifyResponse> {
     return this.fetch<VerifyResponse>(
       `/api/auth/verify?token=${encodeURIComponent(token)}`

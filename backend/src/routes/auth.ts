@@ -7,7 +7,7 @@ import { EmailService } from '../services/EmailService.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { validate } from '../middleware/validate.js';
 import { authenticate } from '../middleware/authenticate.js';
-import { magicLinkRequestSchema, magicLinkVerifySchema } from '../schemas/auth.js';
+import { magicLinkRequestSchema, magicLinkVerifySchema, verifyCodeSchema } from '../schemas/auth.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -24,7 +24,7 @@ router.post(
   asyncHandler((req, res) => authController.requestMagicLink(req, res))
 );
 
-// Verify magic link and get JWT
+// Verify magic link and get JWT (legacy token-based, kept for backward compatibility)
 router.get(
   '/auth/verify',
   validate(magicLinkVerifySchema, 'query'),
@@ -32,6 +32,13 @@ router.get(
     const { token } = req.query as { token: string };
     return authController.verifyMagicLink(token, res);
   })
+);
+
+// Verify 6-digit code and get JWT
+router.post(
+  '/auth/verify-code',
+  validate(verifyCodeSchema, 'body'),
+  asyncHandler((req, res) => authController.verifyCode(req, res))
 );
 
 // Get current user (protected)

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { apiClient } from "../lib/api-client";
 import { identify } from "../lib/analytics";
+import { useAuth } from "../contexts/auth-context";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -12,12 +13,17 @@ const LEFT_COPY = {
 
 export function SignIn(): React.ReactElement {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const isValidEmail = EMAIL_REGEX.test(email);
+  const isValidCode = /^\d{6}$/.test(code);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -36,6 +42,7 @@ export function SignIn(): React.ReactElement {
         localStorage.setItem("sehatai_token", response.token);
         const me = await apiClient.getMe();
         identify(me.id);
+        login(me);
         navigate(me.onboarded ? "/dashboard" : "/onboarding");
         return;
       }
@@ -47,6 +54,29 @@ export function SignIn(): React.ReactElement {
       setError(errorMessage);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCodeSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+    if (!isValidCode) return;
+
+    setIsVerifying(true);
+    setCodeError(null);
+
+    try {
+      const response = await apiClient.verifyCode(email, code);
+      localStorage.setItem("sehatai_token", response.token);
+      const me = await apiClient.getMe();
+      identify(me.id);
+      login(me);
+      navigate(me.onboarded ? "/dashboard" : "/onboarding");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to verify code";
+      setCodeError(errorMessage);
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -113,26 +143,61 @@ export function SignIn(): React.ReactElement {
           </div>
         </div>
 
-        {/* Right panel - message */}
+        {/* Right panel - code verification form */}
         <div className="w-full lg:w-3/5 flex flex-col items-center justify-center px-6 py-8 lg:px-12 lg:py-12 bg-bg">
           <div className="w-full max-w-md">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-semibold text-text mb-2">Check your email</h1>
-              <p className="text-text text-base">
-                We've sent you a magic link to <strong>{email}</strong>
-              </p>
-            </div>
+            <form onSubmit={handleCodeSubmit} className="space-y-6">
+              <div>
+                <label
+                  htmlFor="code"
+                  className="block text-xs font-medium tracking-wide text-text uppercase mb-3"
+                >
+                  Verification code
+                </label>
+                <input
+                  id="code"
+                  type="text"
+                  inputMode="numeric"
+                  value={code}
+                  onChange={(e) => {
+                    const numericOnly = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setCode(numericOnly);
+                    setCodeError(null);
+                  }}
+                  placeholder="000000"
+                  maxLength={6}
+                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 bg-surface text-text placeholder-neutral-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-base tracking-widest text-center font-mono"
+                />
+                {codeError && (
+                  <p className="text-sm text-red-600 mt-2 font-medium border border-red-200 bg-red-50 rounded-lg px-3 py-2">
+                    ⚠ {codeError}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={!isValidCode || isVerifying}
+                className="w-full px-6 py-3 rounded-full font-medium text-base bg-accent text-white disabled:opacity-45 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+              >
+                {isVerifying ? "Verifying..." : "Verify"}
+              </button>
+            </form>
 
             <button
               onClick={() => {
                 setIsSubmitted(false);
-                setEmail("");
-                setError(null);
+                setCode("");
+                setCodeError(null);
               }}
-              className="w-full px-6 py-3 rounded-full font-medium text-base bg-accent text-white hover:opacity-90 transition-opacity"
+              className="w-full mt-4 px-6 py-3 rounded-full font-medium text-base border border-neutral-300 text-text bg-transparent hover:bg-neutral-50 transition-colors"
             >
               Try another email
             </button>
+
+            <p className="text-xs text-neutral-500 text-center mt-8 leading-relaxed">
+              We've sent a 6-digit code to <strong>{email}</strong>
+            </p>
           </div>
         </div>
       </div>
