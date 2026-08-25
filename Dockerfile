@@ -14,6 +14,11 @@ COPY frontend/ ./
 # calls go to relative /api/... paths since frontend and backend are served
 # from the same place. Local dev is unaffected (uses frontend/.env instead).
 ENV VITE_API_URL=""
+# Render's dashboard env vars only reach the running container, not this
+# isolated `docker build` step — but Vite bakes VITE_* vars in at build
+# time. Hardcoding here (same pattern as VITE_API_URL above) is safe: this
+# is a public Mixpanel project token, meant to be visible in the bundle.
+ENV VITE_MIXPANEL_TOKEN="ecd1734568a90ad70d35deefb89a0864"
 RUN npm run build
 
 # ---- Stage 2: build the backend ----
