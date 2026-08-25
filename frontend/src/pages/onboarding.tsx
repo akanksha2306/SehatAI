@@ -3,10 +3,12 @@ import { Navigate } from "react-router";
 import { apiClient } from "../lib/api-client";
 import { OnboardingWizard } from "../features/onboarding/organisms/onboarding-wizard";
 import type { OnboardingAnswers } from "../features/onboarding/types";
+import { useAuth } from "../contexts/auth-context";
 
 export function Onboarding(): React.ReactElement {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth();
 
   if (isSubmitted) {
     return <Navigate to="/dashboard" replace />;
@@ -21,6 +23,11 @@ export function Onboarding(): React.ReactElement {
         goal: answers.goal || "",
         timeCadence: answers.timeCadence || "",
       });
+      // Re-fetch the user so the shared auth state picks up
+      // onboarded: true — otherwise ProtectedRoute still sees the
+      // stale pre-onboarding value and bounces back to /onboarding.
+      const me = await apiClient.getMe();
+      login(me);
       setIsSubmitted(true);
     } catch (err) {
       const errorMessage =

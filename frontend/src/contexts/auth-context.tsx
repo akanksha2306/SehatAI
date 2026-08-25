@@ -8,6 +8,13 @@ interface AuthContextType {
   isAuthenticated: boolean;
   onboarded: boolean;
   signOut: () => void;
+  /**
+   * Tell the shared auth state directly that a user just logged in
+   * (bypass or code verification), instead of waiting for a page
+   * refresh to pick it up. Without this, ProtectedRoute still sees
+   * isAuthenticated=false right after login and bounces back to "/".
+   */
+  login: (user: AuthUser) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,6 +55,10 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
     resetAnalytics();
   };
 
+  const login = (loggedInUser: AuthUser): void => {
+    setUser(loggedInUser);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -56,6 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
         isAuthenticated: user !== null,
         onboarded: (user as unknown as Record<string, unknown>)?.onboarded === true,
         signOut,
+        login,
       }}
     >
       {children}
