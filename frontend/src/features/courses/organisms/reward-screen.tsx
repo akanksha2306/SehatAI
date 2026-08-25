@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../../lib/api-client';
+import { track } from '../../../lib/analytics';
 import type { CourseTrack } from '../types';
 import { Star, ArrowRight, Home } from 'lucide-react';
 
@@ -15,7 +16,7 @@ interface RewardScreenProps {
 }
 
 export function RewardScreen({
-  track,
+  track: courseTrack,
   chapterIndex,
   quizScore,
   totalQuestions,
@@ -26,13 +27,18 @@ export function RewardScreen({
   const queryClient = useQueryClient();
 
   const { data: chapters = [] } = useQuery({
-    queryKey: ['courses', track, 'chapters'],
-    queryFn: () => apiClient.getCourseChapters(track),
+    queryKey: ['courses', courseTrack, 'chapters'],
+    queryFn: () => apiClient.getCourseChapters(courseTrack),
   });
 
   const { mutate: completeChapter, isPending } = useMutation({
-    mutationFn: () => apiClient.completeChapter(track, chapterIndex, quizScore),
+    mutationFn: () => apiClient.completeChapter(courseTrack, chapterIndex, quizScore),
     onSuccess: () => {
+      track('chapter_completed', {
+        track: courseTrack,
+        chapter_index: chapterIndex,
+        credits_earned: reward,
+      });
       queryClient.invalidateQueries({ queryKey: ['courses'] });
       queryClient.invalidateQueries({ queryKey: ['me'] });
     },

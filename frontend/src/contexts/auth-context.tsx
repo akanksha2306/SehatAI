@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { apiClient, type AuthUser } from "../lib/api-client";
+import { identify, reset as resetAnalytics } from "../lib/analytics";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
         .getMe()
         .then((data) => {
           setUser(data);
+          identify(data.id);
         })
         .catch(() => {
           localStorage.removeItem("sehatai_token");
@@ -43,6 +45,7 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
   const signOut = (): void => {
     localStorage.removeItem("sehatai_token");
     setUser(null);
+    resetAnalytics();
   };
 
   return (

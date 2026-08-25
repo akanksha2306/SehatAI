@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { apiClient } from '../../../lib/api-client';
+import { track } from '../../../lib/analytics';
 import { RecordingSimulator } from '../molecules/recording-simulator';
 import { DialectSelector, type Dialect } from '../molecules/dialect-selector';
 import { cn } from '../../../lib/utils';
@@ -29,10 +30,14 @@ export function ScribeApp(): React.ReactElement {
   const handleRecordingComplete = (recordedTranscript: string): void => {
     setTranscript(recordedTranscript);
     setStep('translate');
+    track('scribe_recording_started', {
+      transcript_length: recordedTranscript.length,
+    });
   };
 
   const handleTranslate = (): void => {
     if (transcript && selectedDialect) {
+      track('scribe_translation_requested', { dialect: selectedDialect });
       translateMutation.mutate({ transcript, dialect: selectedDialect });
     }
   };

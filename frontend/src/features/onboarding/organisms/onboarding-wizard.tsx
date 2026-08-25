@@ -3,6 +3,7 @@ import { cn } from "../../../lib/utils";
 import { STEPS, STEP_LABELS, LEFT_COPY, getChallengeLabels, getOptionLabel } from "../config";
 import type { OnboardingAnswers } from "../types";
 import { OptionCard } from "../atoms/option-card";
+import { track } from "../../../lib/analytics";
 
 export interface OnboardingWizardProps {
   onComplete: (answers: OnboardingAnswers) => Promise<void>;
@@ -59,8 +60,10 @@ export function OnboardingWizard({
         newAnswers.confidence = value as never;
       } else if (step.key === "goal") {
         newAnswers.goal = value as never;
+        track("onboarding_goal_selected", { goal: value });
       } else if (step.key === "timeCadence") {
         newAnswers.timeCadence = value as never;
+        track("onboarding_time_budget_selected", { time_budget: value });
       }
 
       return newAnswers;
@@ -69,6 +72,14 @@ export function OnboardingWizard({
 
   const handleNext = async (): Promise<void> => {
     if (!canContinue()) return;
+
+    const currentStep = STEPS[currentStepIndex];
+    if (currentStep) {
+      track("onboarding_step_completed", {
+        step: currentStep.key,
+        step_number: currentStepIndex + 1,
+      });
+    }
 
     if (currentStepIndex >= STEPS.length - 1) {
       setIsDone(true);

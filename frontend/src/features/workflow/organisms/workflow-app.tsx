@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../../lib/api-client';
+import { track } from '../../../lib/analytics';
 import { TaskInputSection } from '../molecules/task-input-section';
 import { WorkflowOutput } from '../molecules/workflow-output';
 import { SavedWorkflowsList } from '../molecules/saved-workflows-list';
@@ -23,6 +24,10 @@ export function WorkflowApp(): React.ReactElement {
       setOutput(data.output);
       setStep('output');
       setIsSaved(false);
+      track('workflow_generated', {
+        task_type: task,
+        has_description: Boolean(description),
+      });
     },
     onError: () => {
       console.error('Failed to generate workflow');
