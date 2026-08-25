@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../../lib/api-client';
 import type { CourseTrack } from '../types';
 import { ArrowRight } from 'lucide-react';
+import { WeakStrongToggle } from '../molecules/weak-strong-toggle';
 
 interface ChapterReaderScreenProps {
   track: CourseTrack;
@@ -86,6 +87,9 @@ export function ChapterReaderScreen({
           <p className="text-lg font-semibold text-text">{chapter.key}</p>
         </section>
       )}
+
+      {/* Weak ⟷ Strong Toggle */}
+      {chapter.example && <WeakStrongToggle example={chapter.example} />}
 
       {/* CTA */}
       <section>

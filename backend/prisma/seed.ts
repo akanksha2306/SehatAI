@@ -1024,6 +1024,60 @@ async function main(): Promise<void> {
   }
   console.log(`Seeded ${hallChapters.length} hall chapters`);
 
+  // Chapter examples for promptlab_dummy track (Chapter 1-5 Before/After from notes)
+  const chapterExamples = [
+    {
+      // Chapter 1 — The Blank Box
+      weakPrompt: 'Help me with this patient.',
+      weakOutput:
+        "I'd be happy to help! Could you tell me more about the patient — their symptoms, history, and what you need help with?",
+      strongPrompt:
+        'You are advising a GP in an OPD. 45M, diabetic, 3-day fever with productive cough, SpO2 96%. List the top 3 likely diagnoses and one red flag to check for each. Bullet list, under 80 words.',
+      strongOutput:
+        '1. Community-acquired pneumonia — red flag: SpO2 <94% or breathlessness. 2. Diabetic ketoacidosis — red flag: fruity breath, high glucose. 3. Viral URI with secondary infection — red flag: fever >5 days. Advise chest X-ray and blood glucose check before treatment.',
+    },
+    {
+      // Chapter 2 — Be Specific
+      weakPrompt: 'What could be causing chest pain in a 60-year-old?',
+      weakOutput:
+        'Chest pain in a 60-year-old could be due to many causes including cardiac issues like angina or myocardial infarction, gastrointestinal causes like GERD, musculoskeletal pain, anxiety, pulmonary causes like pulmonary embolism, and others. A full history and examination would be needed to narrow this down.',
+      strongPrompt:
+        'You are advising a GP. 60F, smoker, HTN, 2h central crushing chest pain radiating to jaw, BP 150/95. Rank the top 3 differentials with the immediate action for each. Bullet list, under 120 words.',
+      strongOutput:
+        '1. Acute coronary syndrome — ECG + troponin now, aspirin if not contraindicated. 2. Aortic dissection — check BP in both arms, urgent CT if suspected. 3. Unstable angina — same urgent workup, admit for monitoring. Given the risk factors and radiation pattern, treat as cardiac emergency until ruled out.',
+    },
+    {
+      // Chapter 3 — Give It a Role
+      weakPrompt: 'Explain diabetic ketoacidosis.',
+      weakOutput:
+        'Diabetic ketoacidosis (DKA) is a serious complication of diabetes that occurs when the body produces high levels of blood acids called ketones...',
+      strongPrompt:
+        'You are a physician advising a covering GP overnight. Explain DKA management priorities in the first hour — assume they know the basics, focus on what to do now. Bullet list, under 100 words.',
+      strongOutput:
+        '1. IV fluids first — 0.9% saline bolus. 2. Check K+ before starting insulin; correct if <3.3. 3. Fixed-rate IV insulin infusion, not bolus. 4. Hourly glucose + ketone monitoring. 5. Identify and treat the trigger (infection, missed insulin).',
+    },
+    {
+      // Chapter 4 — Say the Task Out Loud
+      weakPrompt: 'Diabetes management.',
+      weakOutput:
+        'Diabetes management involves several key components including blood glucose monitoring, medication adherence, dietary changes, regular exercise, and routine follow-up visits...',
+      strongPrompt:
+        'Compare metformin vs. SGLT2 inhibitors as first-line therapy for a newly diagnosed type 2 diabetic with mild CKD. Table format: mechanism, key benefit, key caution. Under 100 words.',
+      strongOutput:
+        'Metformin (reduces hepatic glucose output / cheap, well-established / avoid if eGFR <30) vs. SGLT2i (blocks renal glucose reabsorption / renal + cardiac protection / risk of DKA, UTIs).',
+    },
+    {
+      // Chapter 5 — Control the Format
+      weakPrompt: "Summarise this patient's history.",
+      weakOutput:
+        'One long unbroken paragraph running through history, meds, and labs with no breaks.',
+      strongPrompt:
+        "Summarise this patient's history in 5 bullets for a handover note: active problems, current medications, key recent results, allergies, pending items. Plain language, under 80 words.",
+      strongOutput:
+        'Five clean bullets — Active problems / Meds / Recent results / Allergies / Pending — each one line.',
+    },
+  ];
+
   // Seed promptlab_dummy chapters
   for (let i = 0; i < promptlabDummyChapters.length; i++) {
     const ch = promptlabDummyChapters[i];
@@ -1036,6 +1090,7 @@ async function main(): Promise<void> {
         key: ch.key,
         reward: ch.reward,
         quiz: ch.quiz,
+        example: chapterExamples[i],
       },
     });
   }

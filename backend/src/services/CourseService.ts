@@ -15,6 +15,12 @@ export interface ChapterDetail {
   key: string;
   quiz: unknown;
   reward: number;
+  example?: {
+    weakPrompt: string;
+    weakOutput: string;
+    strongPrompt: string;
+    strongOutput: string;
+  } | null;
 }
 
 export interface ChapterProgressData {
@@ -210,6 +216,15 @@ export class CourseService {
       key: chapter.key,
       quiz: chapter.quiz,
       reward: chapter.reward,
+      example: chapter.example as
+        | {
+            weakPrompt: string;
+            weakOutput: string;
+            strongPrompt: string;
+            strongOutput: string;
+          }
+        | null
+        | undefined,
     };
   }
 

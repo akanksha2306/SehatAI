@@ -6,8 +6,6 @@
  * are NOT enough on their own — that was the actual bug: every bg-accent /
  * text-text / border-neutral-300 / bg-bg class in the app was silently
  * producing no CSS at all, because nothing told Tailwind these names exist.
- * Mapping to var(--token) (not a fixed value) keeps the dark-mode
- * override below working, since the indirection re-resolves at paint time.
  */
 @theme {
   --color-text: var(--text);
@@ -22,21 +20,26 @@
   --color-neutral-900: var(--neutral-900);
 }
 
+/*
+ * Dark theme only, permanently — no light mode, no toggle, no
+ * prefers-color-scheme check. These were the dark-mode values;
+ * they're now the only values.
+ */
 :root {
-  --text: #201e1d;
-  --bg: #f5ead8;
-  --surface: #ebddc5;
-  --accent: #c67139;
-  --accent-light: #ffe1d0;
-  --accent-2: #7a8a5e;
-  --accent-2-light: #f0fae1;
-  --neutral-300: #dcd3c4;
-  --neutral-500: #a19786;
-  --neutral-900: #2e2b25;
-  --code-bg: #f4f3ec;
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --text: #d4ccc4;
+  --bg: #2a2521;
+  --surface: #4d453c;
+  --accent: #f0a878;
+  --accent-light: #8a5a34;
+  --accent-2: #b4c4a2;
+  --accent-2-light: #5f6f4c;
+  --neutral-300: #6b6158;
+  --neutral-500: #96897c;
+  --neutral-900: #e8e0d8;
+  --code-bg: #1f2028;
+  --social-bg: rgba(47, 48, 58, 0.5);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 
   --sans: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Caprasimo', system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -44,7 +47,7 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: dark;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -57,27 +60,8 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #d4ccc4;
-    --bg: #3a3430;
-    --surface: #4a4238;
-    --accent: #e8a477;
-    --accent-light: #6b5234;
-    --accent-2: #a8b896;
-    --accent-2-light: #4d5a3f;
-    --neutral-300: #5a514a;
-    --neutral-500: #7a6f65;
-    --neutral-900: #e8e0d8;
-    --code-bg: #1f2028;
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+#social .button-icon {
+  filter: invert(1) brightness(2);
 }
 
 #root {

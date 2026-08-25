@@ -56,6 +56,7 @@ model Chapter {
   key       String
   reward    Int
   quiz      Json     // array of { q, opts, correct, explain, id?, type?, mistake_tag?, better_prompt? }
+  example   Json?    // { weakPrompt: string, weakOutput: string, strongPrompt: string, strongOutput: string }
   createdAt DateTime @default(now())
 
   @@unique([track, index])

@@ -43,12 +43,20 @@ export interface QuizQuestion {
   explain: string;
 }
 
+export interface ChapterExample {
+  weakPrompt: string;
+  weakOutput: string;
+  strongPrompt: string;
+  strongOutput: string;
+}
+
 export interface ChapterDetail {
   title: string;
   paras: string[];
   key: string;
   quiz: QuizQuestion[];
   reward: number;
+  example?: ChapterExample | null;
 }
 
 export interface ChapterProgressRecord {
