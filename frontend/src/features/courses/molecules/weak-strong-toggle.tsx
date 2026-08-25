@@ -24,14 +24,14 @@ export function WeakStrongToggle({
         >
           Prompt strength
         </label>
-        <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-full">
+        <div className="flex items-center gap-2 bg-surface p-1 rounded-full">
           <button
             onClick={() => setIsStrong(false)}
             className={cn(
               'px-4 py-2 rounded-full font-medium text-sm transition-all',
               !isStrong
-                ? 'bg-white text-text shadow-sm border border-neutral-200'
-                : 'text-neutral-600 hover:text-text'
+                ? 'bg-white text-text shadow-sm border border-neutral-300'
+                : 'text-neutral-500 hover:text-text'
             )}
             aria-pressed={!isStrong}
           >
@@ -42,8 +42,8 @@ export function WeakStrongToggle({
             className={cn(
               'px-4 py-2 rounded-full font-medium text-sm transition-all',
               isStrong
-                ? 'bg-white text-text shadow-sm border border-neutral-200'
-                : 'text-neutral-600 hover:text-text'
+                ? 'bg-white text-text shadow-sm border border-neutral-300'
+                : 'text-neutral-500 hover:text-text'
             )}
             aria-pressed={isStrong}
           >
@@ -54,7 +54,7 @@ export function WeakStrongToggle({
 
       {/* Prompt Box */}
       <div className="space-y-2">
-        <p className="text-xs uppercase tracking-wide text-neutral-600 font-semibold">
+        <p className="text-xs uppercase tracking-wide text-neutral-500 font-semibold">
           Prompt
         </p>
         <div
@@ -67,10 +67,10 @@ export function WeakStrongToggle({
 
       {/* Output Box */}
       <div className="space-y-2">
-        <p className="text-xs uppercase tracking-wide text-neutral-600 font-semibold">
+        <p className="text-xs uppercase tracking-wide text-neutral-500 font-semibold">
           Output
         </p>
-        <div className="rounded p-4 bg-neutral-50 border border-neutral-200 text-sm text-text leading-relaxed">
+        <div className="rounded p-4 bg-surface border border-neutral-300 text-sm text-text leading-relaxed">
           {currentOutput}
         </div>
       </div>

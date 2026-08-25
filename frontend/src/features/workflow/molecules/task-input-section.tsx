@@ -45,7 +45,7 @@ export function TaskInputSection({
           placeholder="Enter your task..."
           className={cn(
             'w-full px-4 py-3 rounded-lg border text-sm font-medium transition-colors',
-            'border-neutral-300 bg-surface text-text placeholder:text-neutral-400',
+            'border-neutral-300 bg-surface text-text placeholder:text-neutral-500',
             'focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
           )}
         />
@@ -84,7 +84,7 @@ export function TaskInputSection({
           rows={4}
           className={cn(
             'w-full px-4 py-3 rounded-lg border text-sm font-medium transition-colors',
-            'border-neutral-300 bg-surface text-text placeholder:text-neutral-400',
+            'border-neutral-300 bg-surface text-text placeholder:text-neutral-500',
             'focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent',
             'resize-none'
           )}

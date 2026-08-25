@@ -193,7 +193,7 @@ export function ScribeApp(): React.ReactElement {
       {/* Info Box */}
       <section className="bg-accent-2-light border border-accent-2 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-text mb-2">How it works</h3>
-        <ul className="text-sm text-neutral-600 space-y-2 list-disc list-inside">
+        <ul className="text-sm text-neutral-500 space-y-2 list-disc list-inside">
           <li>Start a recording to see the consultation transcript appear word-by-word</li>
           <li>Select your patient's language and regional dialect</li>
           <li>Translate the transcript while preserving medication names and dosages</li>

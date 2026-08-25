@@ -217,7 +217,7 @@ export function SignIn(): React.ReactElement {
                 setError(null);
                 setCodeError(null);
               }}
-              className="w-full mt-3 px-6 py-3 rounded-full font-medium text-base border border-neutral-300 text-text bg-transparent hover:bg-neutral-50 transition-colors"
+              className="w-full mt-3 px-6 py-3 rounded-full font-medium text-base border border-neutral-300 text-text bg-transparent hover:bg-surface transition-colors"
             >
               Try another email
             </button>

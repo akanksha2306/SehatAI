@@ -110,7 +110,7 @@ export function RewardScreen({
             You've completed this track!
           </p>
         ) : (
-          <p className="text-lg font-medium text-neutral-600">
+          <p className="text-lg font-medium text-neutral-500">
             {remainingStats.remaining} chapter{remainingStats.remaining !== 1 ? 's' : ''} remaining in this track
           </p>
         )}

@@ -310,7 +310,7 @@ export function Dashboard(): React.ReactElement {
             <h3 className="text-lg font-semibold text-text mb-2">
               Ready to start?
             </h3>
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-neutral-500">
               The modules will open as you progress through your learning path. Each one builds on safety,
               verification, and real clinical workflows.
             </p>

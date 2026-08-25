@@ -78,8 +78,8 @@ export function SavedWorkflowsList({
             <button
               onClick={() => toggleExpand(workflow.id)}
               className={cn(
-                'w-full px-6 py-4 flex items-center justify-between text-left hover:bg-neutral-50 transition-colors',
-                expandedId === workflow.id && 'bg-neutral-50'
+                'w-full px-6 py-4 flex items-center justify-between text-left hover:bg-surface transition-colors',
+                expandedId === workflow.id && 'bg-surface'
               )}
             >
               <div className="flex-1 space-y-1">
@@ -91,14 +91,14 @@ export function SavedWorkflowsList({
                 </p>
               </div>
               {expandedId === workflow.id ? (
-                <ChevronUp size={20} className="text-neutral-400 flex-shrink-0" />
+                <ChevronUp size={20} className="text-neutral-500 flex-shrink-0" />
               ) : (
-                <ChevronDown size={20} className="text-neutral-400 flex-shrink-0" />
+                <ChevronDown size={20} className="text-neutral-500 flex-shrink-0" />
               )}
             </button>
 
             {expandedId === workflow.id && (
-              <div className="border-t border-neutral-300 px-6 py-4 space-y-3 bg-neutral-50">
+              <div className="border-t border-neutral-300 px-6 py-4 space-y-3 bg-surface">
                 {workflow.description && (
                   <div className="space-y-2">
                     <p className="text-xs uppercase tracking-wide text-neutral-500 font-semibold">
