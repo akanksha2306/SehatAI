@@ -1,4 +1,4 @@
-export type CourseTrack = 'prompt' | 'hall';
+export type CourseTrack = 'prompt' | 'hall' | 'promptlab_dummy';
 
 export interface CourseContextValue {
   track: CourseTrack;

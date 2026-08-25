@@ -49,13 +49,13 @@ model OnboardingResponse {
 
 model Chapter {
   id        String   @id @default(cuid())
-  track     String   // 'prompt' | 'hall'
+  track     String   // 'prompt' | 'hall' | 'promptlab_dummy'
   index     Int
   title     String
   paras     String[]
   key       String
   reward    Int
-  quiz      Json     // array of { q, opts, correct, explain }
+  quiz      Json     // array of { q, opts, correct, explain, id?, type?, mistake_tag?, better_prompt? }
   createdAt DateTime @default(now())
 
   @@unique([track, index])
@@ -64,7 +64,7 @@ model Chapter {
 model ChapterProgress {
   id           String   @id @default(cuid())
   userId       String
-  track        String   // 'prompt' | 'hall'
+  track        String   // 'prompt' | 'hall' | 'promptlab_dummy'
   chapterIndex Int
   completedAt  DateTime @default(now())
   quizScore    Int

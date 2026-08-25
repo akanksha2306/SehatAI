@@ -37,6 +37,15 @@ const MODULE_TILES: ModuleTile[] = [
     track: "hall",
   },
   {
+    id: "promptlab-dummy",
+    icon: <Lightbulb size={32} className="text-accent" strokeWidth={1.5} />,
+    title: "🧪 Prompt Lab (Experimental)",
+    description:
+      "An experimental sandbox version of Prompt Lab. This track may be modified or removed.",
+    status: "active",
+    track: "promptlab_dummy",
+  },
+  {
     id: "ai-scribe",
     icon: <FileText size={32} className="text-accent" strokeWidth={1.5} />,
     title: "AI Scribe",
@@ -176,6 +185,11 @@ export function Dashboard(): React.ReactElement {
     queryFn: () => apiClient.getCourseChapters('hall'),
   });
 
+  const { data: promptlabDummyChapters = [] } = useQuery({
+    queryKey: ['courses', 'promptlab_dummy', 'chapters'],
+    queryFn: () => apiClient.getCourseChapters('promptlab_dummy'),
+  });
+
   const stats = useMemo(() => {
     return {
       streak: meData?.stats?.currentStreak ?? 0,
@@ -193,8 +207,12 @@ export function Dashboard(): React.ReactElement {
         completed: hallChapters.filter((c) => c.completed).length,
         total: hallChapters.length,
       },
+      promptlab_dummy: {
+        completed: promptlabDummyChapters.filter((c) => c.completed).length,
+        total: promptlabDummyChapters.length,
+      },
     };
-  }, [promptChapters, hallChapters]);
+  }, [promptChapters, hallChapters, promptlabDummyChapters]);
 
   const handleSignOut = (): void => {
     signOut();
@@ -276,7 +294,9 @@ export function Dashboard(): React.ReactElement {
                         ? courseProgress.prompt
                         : tile.track === 'hall'
                           ? courseProgress.hall
-                          : undefined
+                          : tile.track === 'promptlab_dummy'
+                            ? courseProgress.promptlab_dummy
+                            : undefined
                       : undefined
                   }
                   onClick={() => handleTileClick(tile.track, tile.path)}

@@ -10,6 +10,7 @@ import { RewardScreen } from '../features/courses/organisms/reward-screen';
 import { DoctorIntroCard } from '../features/courses/molecules/doctor-intro-card';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../lib/api-client';
+import { track } from '../lib/analytics';
 import type { CourseTrack } from '../features/courses/types';
 
 type Screen = 'list' | 'reader' | 'quiz-intro' | 'quiz' | 'reward';
@@ -19,7 +20,7 @@ export function Course(): React.ReactElement {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
-  const track = (trackParam === 'prompt' || trackParam === 'hall' ? trackParam : 'prompt') as CourseTrack;
+  const courseTrack = (trackParam === 'prompt' || trackParam === 'hall' || trackParam === 'promptlab_dummy' ? trackParam : 'prompt') as CourseTrack;
 
   const [screen, setScreen] = useState<Screen>('list');
   const [currentChapterIndex, setCurrentChapterIndex] = useState<number | null>(null);
@@ -28,10 +29,10 @@ export function Course(): React.ReactElement {
   const [totalQuestions, setTotalQuestions] = useState<number>(0);
 
   const { data: chapterDetail } = useQuery({
-    queryKey: ['courses', track, 'chapters', currentChapterIndex],
+    queryKey: ['courses', courseTrack, 'chapters', currentChapterIndex],
     queryFn: () =>
       currentChapterIndex !== null
-        ? apiClient.getChapterDetail(track, currentChapterIndex)
+        ? apiClient.getChapterDetail(courseTrack, currentChapterIndex)
         : Promise.resolve(null),
     enabled: currentChapterIndex !== null,
   });
@@ -39,6 +40,7 @@ export function Course(): React.ReactElement {
   const handleChapterSelect = (index: number): void => {
     setCurrentChapterIndex(index);
     setScreen('reader');
+    track('chapter_opened', { track: courseTrack, chapter_index: index });
   };
 
   const handleStartQuiz = (): void => {
@@ -47,7 +49,7 @@ export function Course(): React.ReactElement {
       setChapterReward(chapterDetail.reward);
     }
     // For hall track, show doctor intro first; for prompt track, go straight to quiz
-    const nextScreen = track === 'hall' ? 'quiz-intro' : 'quiz';
+    const nextScreen = courseTrack === 'hall' ? 'quiz-intro' : 'quiz';
     setScreen(nextScreen);
   };
 
@@ -58,6 +60,13 @@ export function Course(): React.ReactElement {
   const handleQuizComplete = (score: number): void => {
     setQuizScore(score);
     setScreen('reward');
+    track('quiz_submitted', {
+      track: courseTrack,
+      chapter_index: currentChapterIndex,
+      score,
+      total_questions: totalQuestions,
+      passed: score === totalQuestions,
+    });
   };
 
   const handleContinueToNext = (): void => {
@@ -107,12 +116,12 @@ export function Course(): React.ReactElement {
       <main className="flex-1 px-6 py-12">
         <div className="max-w-3xl mx-auto">
           {screen === 'list' && (
-            <ChapterListScreen track={track} onChapterSelect={handleChapterSelect} />
+            <ChapterListScreen track={courseTrack} onChapterSelect={handleChapterSelect} />
           )}
 
           {screen === 'reader' && currentChapterIndex !== null && (
             <ChapterReaderScreen
-              track={track}
+              track={courseTrack}
               chapterIndex={currentChapterIndex}
               onStartQuiz={handleStartQuiz}
               onBack={() => setScreen('list')}
@@ -125,7 +134,7 @@ export function Course(): React.ReactElement {
 
           {screen === 'quiz' && currentChapterIndex !== null && (
             <QuizScreen
-              track={track}
+              track={courseTrack}
               chapterIndex={currentChapterIndex}
               onComplete={handleQuizComplete}
               onBack={() => setScreen('reader')}
@@ -136,7 +145,7 @@ export function Course(): React.ReactElement {
             currentChapterIndex !== null &&
             quizScore !== null && (
               <RewardScreen
-                track={track}
+                track={courseTrack}
                 chapterIndex={currentChapterIndex}
                 quizScore={quizScore}
                 totalQuestions={totalQuestions}

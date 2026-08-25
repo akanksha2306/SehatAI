@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const trackSchema = z.enum(['prompt', 'hall']);
+export const trackSchema = z.enum(['prompt', 'hall', 'promptlab_dummy']);
 
 export const completeChapterSchema = z.object({
   quizScore: z.number().int().min(0),

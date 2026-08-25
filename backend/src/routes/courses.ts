@@ -16,7 +16,7 @@ const courseController = new CourseController(courseService);
 // Validate track parameter
 const validateTrack = (req: any, res: any, next: any) => {
   const { track } = req.params;
-  if (track !== 'prompt' && track !== 'hall') {
+  if (track !== 'prompt' && track !== 'hall' && track !== 'promptlab_dummy') {
     return res.status(404).json({
       error: {
         message: 'Track not found',
