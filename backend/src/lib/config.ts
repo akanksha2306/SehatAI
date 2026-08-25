@@ -9,7 +9,9 @@ const envSchema = z.object({
   PORT: z.coerce.number().positive().default(4000),
   APP_URL: z.string().url('Invalid APP_URL'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required'),
+  RESEND_API_KEY: z.string().optional(),
+  BREVO_API_KEY: z.string().min(1, 'BREVO_API_KEY is required'),
+  BREVO_SENDER_EMAIL: z.string().email('BREVO_SENDER_EMAIL must be a valid email'),
   ANTHROPIC_API_KEY: z.string().optional(),
 });
 

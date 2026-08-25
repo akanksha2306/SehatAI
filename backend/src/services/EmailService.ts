@@ -1,27 +1,39 @@
-import { Resend } from 'resend';
 import config from '../lib/config.js';
 
 export class EmailService {
-  private readonly resend: Resend;
+  private readonly brevoApiKey: string;
+  private readonly brevoSenderEmail: string;
 
   constructor() {
-    this.resend = new Resend(config.RESEND_API_KEY);
+    this.brevoApiKey = config.BREVO_API_KEY;
+    this.brevoSenderEmail = config.BREVO_SENDER_EMAIL;
   }
 
   async sendMagicLink(email: string, magicLink: string): Promise<void> {
     try {
-      const result = await this.resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: email,
-        subject: 'Your SehatAI sign-in link',
-        html: this.getMagicLinkEmailTemplate(magicLink),
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'api-key': this.brevoApiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sender: {
+            name: 'SehatAI',
+            email: this.brevoSenderEmail,
+          },
+          to: [{ email }],
+          subject: 'Your SehatAI sign-in link',
+          htmlContent: this.getMagicLinkEmailTemplate(magicLink),
+        }),
       });
 
-      // Log success for dev visibility
-      if (result.data) {
-        console.log(`[magic-link] email sent to ${email} via Resend (id: ${result.data.id})`);
-      } else if (result.error) {
-        console.error(`[magic-link] Resend API error for ${email}: ${result.error.message}`);
+      if (response.ok) {
+        const data = (await response.json()) as { messageId: string };
+        console.log(`[magic-link] email sent to ${email} via Brevo (id: ${data.messageId})`);
+      } else {
+        const errorData = (await response.json()) as { message?: string };
+        console.error(`[magic-link] Brevo API error for ${email}: ${response.status} ${errorData.message || ''}`);
       }
     } catch (error) {
       // Log the error server-side but don't throw
