@@ -1,11 +1,10 @@
 import React, { useMemo } from "react";
-import { useAuth } from "../contexts/auth-context";
-import { Logo } from "../components/logo";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../lib/api-client";
-import { Zap, BookOpen, Lightbulb, FileText, LogOut } from "lucide-react";
+import { Zap, BookOpen, Lightbulb, FileText } from "lucide-react";
 import { cn } from "../lib/utils";
+import { AppHeader } from "../components/app-header";
 
 interface ModuleTile {
   id: string;
@@ -81,10 +80,10 @@ function ModuleCard({
       onClick={onClick}
       disabled={isComingSoon}
       className={cn(
-        "w-full text-left rounded-xl p-6 border border-neutral-300 transition-all",
+        "w-full text-left rounded-xl p-6 border border-neutral-300 transition-all shadow-md",
         isComingSoon
           ? "bg-surface/50 opacity-75 cursor-not-allowed"
-          : "bg-surface hover:border-accent hover:shadow-md cursor-pointer"
+          : "bg-surface hover:border-accent hover:shadow-lg cursor-pointer"
       )}
     >
       {/* Icon and Coming Soon Badge */}
@@ -136,7 +135,7 @@ function StatsBar({
   credits: number;
 }): React.ReactElement {
   return (
-    <div className="flex items-center gap-8 py-4 px-6 bg-surface rounded-lg border border-neutral-300">
+    <div className="flex items-center gap-8 py-4 px-6 bg-surface rounded-lg border border-neutral-300 shadow-md">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-accent-light flex items-center justify-center text-accent font-bold text-sm">
           🔥
@@ -167,7 +166,6 @@ function StatsBar({
 }
 
 export function Dashboard(): React.ReactElement {
-  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const { data: meData } = useQuery({
@@ -214,10 +212,6 @@ export function Dashboard(): React.ReactElement {
     };
   }, [promptChapters, hallChapters, promptlabDummyChapters]);
 
-  const handleSignOut = (): void => {
-    signOut();
-  };
-
   const handleTileClick = (track?: string, path?: string): void => {
     if (path) {
       navigate(path);
@@ -228,30 +222,7 @@ export function Dashboard(): React.ReactElement {
 
   return (
     <div className="min-h-screen flex flex-col bg-bg">
-      {/* Header */}
-      <header className="border-b border-neutral-300 bg-bg sticky top-0 z-10">
-        <div className="px-6 py-4 flex items-center justify-between max-w-7xl mx-auto w-full">
-          <Logo />
-
-          <div className="flex items-center gap-6">
-            <div className="text-right">
-              <p className="text-xs uppercase tracking-wide text-neutral-500 font-semibold">
-                Signed in as
-              </p>
-              <p className="text-sm text-text font-medium">{user?.email}</p>
-            </div>
-
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-text hover:bg-surface transition-colors border border-neutral-300"
-              title="Sign out"
-            >
-              <LogOut size={16} />
-              <span className="hidden sm:inline">Sign out</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <AppHeader />
 
       {/* Main Content */}
       <main className="flex-1 px-6 py-12">

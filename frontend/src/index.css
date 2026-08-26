@@ -21,28 +21,41 @@
 }
 
 /*
- * Whole-app blue/mint theme, permanently — no light mode, no
- * toggle. Anchor colors are the product owner's exact hexes
- * (--surface, --accent). Other tokens are derived so cards,
- * badges, and borders still separate cleanly from the page
- * background instead of collapsing into one flat blue, the same
- * lesson learned from the earlier brown dark-mode contrast fix.
+ * Light/Dark theme system. Default is light mode (via :root),
+ * dark mode is applied via data-theme="dark" attribute on html.
+ * Theme state is persisted to localStorage and loaded on app init
+ * via the ThemeProvider context.
+ *
+ * Light mode palette (default):
+ * - bg/surface: white (#ffffff)
+ * - text: black (#0a0a0a)
+ * - accent: blue (#106ebe)
+ *
+ * Dark mode palette (data-theme="dark"):
+ * - bg/surface: black (#0a0a0a)
+ * - text: white (#ffffff)
+ * - accent: lighter blue (#2e97e8)
+ *
+ * Both modes share the same accent blue (in slightly different shades)
+ * and the same border/neutral token strategy.
  */
+
+/* Light mode (default) */
 :root {
-  --text: #ffffff;
-  --bg: #0a4a85;
-  --surface: #106ebe;
-  --accent: #0ffcbe;
-  --accent-light: #0c5d8f;
-  --accent-2: #5ac8fa;
-  --accent-2-light: #0c4a73;
-  --neutral-300: #3a8ac9;
-  --neutral-500: #9cc4e8;
-  --neutral-900: #eaf4ff;
-  --code-bg: #072e52;
-  --social-bg: rgba(255, 255, 255, 0.08);
+  --text: #0a0a0a;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --accent: #106ebe;
+  --accent-light: #e6f1fb;
+  --accent-2: #2b8fe0;
+  --accent-2-light: #eaf4fd;
+  --neutral-300: #e2e2e2;
+  --neutral-500: #555555;
+  --neutral-900: #000000;
+  --code-bg: #f4f8fc;
+  --social-bg: rgba(16, 110, 190, 0.06);
   --shadow:
-    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.08) 0 10px 15px -3px, rgba(0, 0, 0, 0.04) 0 4px 6px -2px;
 
   --sans: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Caprasimo', system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -50,7 +63,7 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -61,6 +74,26 @@
   @media (max-width: 1024px) {
     font-size: 16px;
   }
+}
+
+/* Dark mode (data-theme="dark") */
+html[data-theme="dark"] {
+  --text: #ffffff;
+  --bg: #0a0a0a;
+  --surface: #0a0a0a;
+  --accent: #2e97e8;
+  --accent-light: #0d3a5c;
+  --accent-2: #5ab3f0;
+  --accent-2-light: #0a4468;
+  --neutral-300: #333333;
+  --neutral-500: #b5b5b5;
+  --neutral-900: #ffffff;
+  --code-bg: #141414;
+  --social-bg: rgba(46, 151, 232, 0.1);
+  --shadow:
+    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+  color-scheme: dark;
 }
 
 #social .button-icon {
