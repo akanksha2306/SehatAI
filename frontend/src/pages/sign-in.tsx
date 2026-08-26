@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { apiClient } from "../lib/api-client";
-import { identify } from "../lib/analytics";
+import { identify, track } from "../lib/analytics";
 import { useAuth } from "../contexts/auth-context";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -119,6 +119,7 @@ export function SignIn(): React.ReactElement {
         const me = await apiClient.getMe();
         identify(me.id);
         login(me);
+        track('user_signed_in', { method: 'dev_bypass' });
         navigate(me.onboarded ? "/dashboard" : "/onboarding");
         return;
       }
@@ -146,6 +147,7 @@ export function SignIn(): React.ReactElement {
       const me = await apiClient.getMe();
       identify(me.id);
       login(me);
+      track('user_signed_in', { method: 'code' });
       navigate(me.onboarded ? "/dashboard" : "/onboarding");
     } catch (err) {
       const errorMessage =

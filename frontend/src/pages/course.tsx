@@ -63,6 +63,11 @@ export function Course(): React.ReactElement {
       score,
       total_questions: totalQuestions,
       passed: score === totalQuestions,
+      // North Star Metric: a Hall of Hallucinations quiz score above 2
+      // signals real engagement with the AI-safety content, not just a
+      // pass. Filter Mixpanel on this flag directly instead of
+      // reconstructing the track+score condition every time.
+      is_north_star: courseTrack === 'hall' && score > 2,
     });
   };
 
