@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import { useAuth } from '../contexts/auth-context';
 import { WorkflowApp } from '../features/workflow/organisms/workflow-app';
 import { AppHeader } from '../components/app-header';
 
